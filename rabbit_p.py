@@ -17,18 +17,36 @@ def publish_message(channel):
         time.sleep(5)
 
 
-def main():
+def  make_connection_and_publish():
     # Make connection with rabbitmq
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-            port=32773,host='localhost'))
-    channel = connection.channel()
+        connection = pika.BlockingConnection(pika.ConnectionParameters(
+                port=32778,host='localhost'))
+        channel = connection.channel()
 
-    # Declearing an exchange with name "logs" and type of "fanout", this exchange will seperate and deliver the message
-    channel.exchange_declare(exchange='logs',
-                             type='fanout')
+        # Declearing an exchange with name "logs" and type of "fanout", this exchange will seperate and deliver the message
+        channel.exchange_declare(exchange='logs',
+                                 type='fanout')
 
-    publish_message(channel)
-    connection.close()
+        publish_message(channel)
+        connection.close()
+
+
+def connect():
+    try:
+        make_connection_and_publish()
+    except Exception as e:
+        print "Connection problem occured"
+        print e
+        return False
+
+
+def main():
+    result = connect()
+    if not result:
+        while True:
+            time.sleep(5)
+            connect()
+
 
 if __name__ == '__main__':
     main()

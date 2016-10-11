@@ -1,14 +1,14 @@
 import pika
-
+import time
 
 def callback(ch, method, properties, body):
     print(" [x] received by c2 %r" % body)
 
 
-def main():
+def  make_connection_and_listen():
     # Make connection with rabbitmq
     connection = pika.BlockingConnection(pika.ConnectionParameters(
-            port=32769,host='localhost'))
+            port=32778,host='localhost'))
     channel = connection.channel()
 
     # Decleare an exchange to receive messages from it
@@ -30,12 +30,21 @@ def main():
                           no_ack=True)
 
 
+def connect():
     try:
-        channel.start_consuming()
+        make_connection_and_listen()
     except Exception as e:
-        print "Inner exception "
-        print e
+        while True:
+            print "Connection problem occured "
+            return False
 
+
+def main():
+    result = connect()
+    if not result:
+        while True:
+            time.sleep(5)
+            connect()
 
 
 if __name__ == '__main__':
